@@ -61,8 +61,14 @@ if __name__ == "__main__":
                         help="slice ID.")
     args = parser.parse_args()
 
-    predicted = h5py.File(f"{args.result_file}", mode="r")["animal_"+args.animalID][args.sliceID]
-    label = h5py.File(f"{args.gt_file}", mode="r")["animal_"+args.animalID][args.sliceID,1]
+    predicted = h5py.File(f"{args.result_file}", mode="r")[
+        f"animal_{args.animalID}"
+    ][args.sliceID]
+
+    label = h5py.File(f"{args.gt_file}", mode="r")[f"animal_{args.animalID}"][
+        args.sliceID, 1
+    ]
+
 
     overlayed = create_diff_mask_binary(predicted, label)
     plt.imshow(overlayed)

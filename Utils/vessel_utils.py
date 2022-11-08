@@ -39,27 +39,35 @@ def minmax(array):
 def log_images(writer, inputs, outputs, targets, step, section='', imID=0, chID=0):
     if not torch.is_tensor(outputs):
         outputs = torch.from_numpy(outputs)
-    writer.add_image('{}/output'.format(section),
-                     vutils.make_grid(outputs[imID, chID, ...],
-                                      normalize=True,
-                                      scale_each=True),
-                     step)
+    writer.add_image(
+        f'{section}/output',
+        vutils.make_grid(
+            outputs[imID, chID, ...], normalize=True, scale_each=True
+        ),
+        step,
+    )
+
     if inputs is not None:
         if not torch.is_tensor(inputs):
             inputs = torch.from_numpy(inputs)
-        writer.add_image('{}/input'.format(section),
-                         vutils.make_grid(inputs[imID, chID, ...],
-                                          normalize=True,
-                                          scale_each=True),
-                         step)
+        writer.add_image(
+            f'{section}/input',
+            vutils.make_grid(
+                inputs[imID, chID, ...], normalize=True, scale_each=True
+            ),
+            step,
+        )
+
     if targets is not None:
         if not torch.is_tensor(targets):
             targets = torch.from_numpy(targets)
-        writer.add_image('{}/target'.format(section),
-                         vutils.make_grid(targets[imID, chID, ...],
-                                          normalize=True,
-                                          scale_each=True),
-                         step)
+        writer.add_image(
+            f'{section}/target',
+            vutils.make_grid(
+                targets[imID, chID, ...], normalize=True, scale_each=True
+            ),
+            step,
+        )
 
 def write_summary(writer, logger, index, original=None, reconstructed=None, focalTverskyLoss=0, diceLoss=0, diceScore=0, iou=0):
     """
@@ -123,19 +131,19 @@ def convert_and_save_tif(image3D, output_path, filename='output.tif', isColored=
     """
     image_list = []
     num = 3# if isColored else 1
-    for i in range(0, int(image3D.shape[0] / num)):
+    for i in range(int(image3D.shape[0] / num)):
         index = i * num
         tensor_image = image3D[index:(index + num), :, :]
         image = transforms.ToPILImage(mode='RGB')(tensor_image)
         image_list.append(image)
 
-    print('convert_and_save_tif:size of image:'+ str(len(image_list)))
+    print(f'convert_and_save_tif:size of image:{len(image_list)}')
     with TiffImagePlugin.AppendingTiffWriter(output_path + filename, True) as tifWriter:
         for im in image_list:
             # with open(DATASET_FOLDER+tiff_in) as tiff_in:
             im.save(tifWriter)
             tifWriter.newFrame()
-    print("Conversion to tiff completed, image saved as {}".format(filename))
+    print(f"Conversion to tiff completed, image saved as {filename}")
 
 def convert_and_save_tif_greyscale(image3D, output_path, filename='output.tif'):
     """
@@ -143,18 +151,18 @@ def convert_and_save_tif_greyscale(image3D, output_path, filename='output.tif'):
     """
     image_list = []
 
-    for i in range(0, int(image3D.shape[0])):
+    for i in range(int(image3D.shape[0])):
         tensor_image = image3D[i]
         image = transforms.ToPILImage(mode='F')(tensor_image)
         image_list.append(image)
 
-    print('convert_and_save_tif:size of image:' + str(len(image_list)))
+    print(f'convert_and_save_tif:size of image:{len(image_list)}')
     with TiffImagePlugin.AppendingTiffWriter(output_path + filename, True) as tifWriter:
         for im in image_list:
             # with open(DATASET_FOLDER+tiff_in) as tiff_in:
             im.save(tifWriter)
             tifWriter.newFrame()
-    print("Conversion to tiff completed, image saved as {}".format(filename))
+    print(f"Conversion to tiff completed, image saved as {filename}")
 
 
 def create_mask(predicted, logger):

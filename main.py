@@ -3,6 +3,7 @@
 
 """
 
+
 import argparse
 import random
 import os
@@ -59,12 +60,12 @@ if __name__ == '__main__':
                         default="trial",
                         help="Name of the model")
     parser.add_argument("--dataset_path",
-                        # default="/mnt/public/soumick/CTPerf/Data/CHAOS.hdf5",
-                        # default="/mnt/public/soumick/CTPerf/Data/AnimalCTv1.hdf5",
-                        # default="/mnt/public/soumick/CTPerf/Data/AnimalCTv2.hdf5",
-			default="/mnt/public/soumick/CTPerf/Data/AnimalCArmCTv1.hdf5",
-                        # default="/mnt/public/soumick/CTPerf/Data/AnimalTSTv1.hdf5",
-                        help="Path to folder containing dataset.")
+    # default="/mnt/public/soumick/CTPerf/Data/CHAOS.hdf5",
+    # default="/mnt/public/soumick/CTPerf/Data/AnimalCTv1.hdf5",
+    # default="/mnt/public/soumick/CTPerf/Data/AnimalCTv2.hdf5",
+    default="/mnt/public/soumick/CTPerf/Data/AnimalCArmCTv1.hdf5",
+    # default="/mnt/public/soumick/CTPerf/Data/AnimalTSTv1.hdf5",
+    help="Path to folder containing dataset.")
     parser.add_argument("--result_type",
                         default="",
                         help="Will be concatenated with the results. If its the main test (test set of the training), leave it blank.")
@@ -260,10 +261,9 @@ if __name__ == '__main__':
         trainer.fit(model)
         torch.cuda.empty_cache()  # to avoid memory errors
 
-    if args.test:
-        if args.load_best:
-            trainer.test(model=model, test_dataloaders=model.test_dataloader())
-            torch.cuda.empty_cache()  # to avoid memory errors
+    if args.test and args.load_best:
+        trainer.test(model=model, test_dataloaders=model.test_dataloader())
+        torch.cuda.empty_cache()  # to avoid memory errors
 
     if args.predict:
         print("Predict not implemented")

@@ -31,10 +31,12 @@ def seg2bbx(seg):
     """
     label_img = measure.label(seg)
     regions = measure.regionprops(label_img)
-    areas = {}
-    areas["actual"] = [regions[i].area for i in range(len(regions))]
-    areas["bbox_areas"] = [regions[i].bbox_area for i in range(len(regions))]
-    areas["convex_areas"] = [regions[i].convex_area for i in range(len(regions))]
+    areas = {
+        "actual": [regions[i].area for i in range(len(regions))],
+        "bbox_areas": [regions[i].bbox_area for i in range(len(regions))],
+        "convex_areas": [regions[i].convex_area for i in range(len(regions))],
+    }
+
     bboxes = [regions[i].bbox for i in range(len(regions))]
     centroids = [regions[i].centroid for i in range(len(regions))]
     return bboxes, centroids, areas

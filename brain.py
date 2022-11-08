@@ -84,11 +84,10 @@ class Brain(LightningModule):
             self.parameters(),
             lr=self.hparams.learning_rate,
         )
-        optim_dict = {
+        return {
             'optimizer': optimiser,
             'monitor': 'val_loss',
         }
-        return optim_dict
 
     def forward(self, batch):
         img, gt = batch

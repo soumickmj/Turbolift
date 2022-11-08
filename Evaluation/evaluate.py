@@ -35,16 +35,14 @@ def getDice(y_pred, y_true, smooth=1):
     y_true_f = y_true.flatten()
     intersection = np.sum(y_true_f * y_pred_f)
     union = np.sum(y_true_f + y_pred_f)
-    dice_score = (2. * intersection + smooth) / (union + smooth)
-    return dice_score
+    return (2. * intersection + smooth) / (union + smooth)
 
 def getIOU(y_pred, y_true, smooth=1):
     y_pred_f = y_pred.flatten()
     y_true_f = y_true.flatten()
     intersection = np.sum(y_true_f * y_pred_f)
     union = np.sum(y_true_f + y_pred_f) - intersection
-    score = (intersection + smooth) / (union + smooth)
-    return score
+    return (intersection + smooth) / (union + smooth)
 
 def getAdditionalMetrics(y_pred, y_true):
     y_pred_f = y_pred.flatten()
@@ -90,8 +88,7 @@ class IOU(nn.Module):
         y_true_f = torch.flatten(y_true)
         intersection = torch.sum(y_true_f * y_pred_f)
         union = torch.sum(y_true_f + y_pred_f) - intersection
-        score = (intersection + self.smooth) / (union + self.smooth)
-        return score
+        return (intersection + self.smooth) / (union + self.smooth)
 
 
 class FocalTverskyLoss(nn.Module):
@@ -126,7 +123,10 @@ class FocalTverskyLoss_detailed(nn.Module):
         true_pos = torch.sum(y_true_pos * y_pred_pos)
         false_neg = torch.sum(y_true_pos * (1 - y_pred_pos))
         false_pos = torch.sum((1 - y_true_pos) * y_pred_pos)
-        logger.info("True Positive:" + str(true_pos) + " False_Negative:" + str(false_neg) + " False_Positive:" + str(false_pos))
+        logger.info(
+            f"True Positive:{str(true_pos)} False_Negative:{str(false_neg)} False_Positive:{str(false_pos)}"
+        )
+
         pt_1 = (true_pos + self.smooth) / (
                 true_pos + self.alpha * false_neg + (1 - self.alpha) * false_pos + self.smooth)
         return pow((1 - pt_1), self.gamma)
@@ -154,6 +154,9 @@ def getLosses(logger, true_pos, false_neg, false_pos, intersection, union):
     pt_1 = (true_pos + smooth) / (true_pos + alpha * false_neg + (1 - alpha) * false_pos + smooth)
     floss = pow((1 - pt_1), gamma)
 
-    logger.info("True Positive:" + str(true_pos) + " False_Negative:" + str(false_neg) + " False_Positive:" + str(false_pos))
-    logger.info("Floss:" + str(floss) + " diceloss:" + str(dice_loss) + " iou:" + str(iou))
+    logger.info(
+        f"True Positive:{str(true_pos)} False_Negative:{str(false_neg)} False_Positive:{str(false_pos)}"
+    )
+
+    logger.info(f"Floss:{str(floss)} diceloss:{str(dice_loss)} iou:{str(iou)}")
     return floss, dice_loss, iou

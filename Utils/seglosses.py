@@ -11,7 +11,7 @@ def dice_loss(pred, target):
 
     nclasses = pred.shape[1]
     loss = 0.
-    for c in range(nclasses):
+    for _ in range(nclasses):
         # have to use contiguous since they may from a torch.view op
         iflat = pred.contiguous().view(-1)
         tflat = target.contiguous().view(-1)
@@ -41,7 +41,7 @@ def jaccard_loss(pred, target):
 
         A_sum = torch.sum(iflat*iflat)
         B_sum = torch.sum(tflat*tflat)
-        
+
         jac = (intersection + smooth) / (A_sum + B_sum - intersection + smooth)
         loss += 1 - jac
     return loss

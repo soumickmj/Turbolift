@@ -18,10 +18,7 @@ class CTDS(torch.utils.data.Dataset):
                 self.subIDs += [k]*n_slc
                 self.slcIDs += list(np.arange(n_slc))
 
-        if transforms is not None:
-            self.transforms = Compose(transforms)
-        else:
-            self.transforms = None
+        self.transforms = Compose(transforms) if transforms is not None else None
 
     def __len__(self):
         return len(self.subIDs)
@@ -31,7 +28,7 @@ class CTDS(torch.utils.data.Dataset):
         sliceID = self.slcIDs[idx]
         data_lbl = self.h5file[subID][sliceID]
         img, gt = data_lbl[0], data_lbl[1]
-        
+
         img = torch.from_numpy(np.expand_dims(img, 0).astype(np.float32)).float()
         gt = torch.from_numpy(np.expand_dims(gt, 0).astype(np.float32)).float()
 

@@ -32,8 +32,7 @@ class AttnGatingBlock(torch.nn.Module):
         upsample_psi = upsample_psi.repeat(1, x.shape[1], 1, 1)
         y = torch.mul(upsample_psi, x)
         result = self.conv4(y)
-        result_bn = self.bn1(result)
-        return result_bn
+        return self.bn1(result)
 
 class AttentionUnet(torch.nn.Module):
 

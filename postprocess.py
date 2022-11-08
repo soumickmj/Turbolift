@@ -88,16 +88,15 @@ for animal in predicts.keys():
         ious.append(iou)
         newmetrics.append(metricvals)
 
-results = {
-    "ResID": resIDs,
-    "Dice": dices,
-    "IoU": ious,
-}
 d = defaultdict(list)
 for adict in newmetrics:
     for key, value in adict.items():
        d[key].append(value)
-results = results | d
+results = {
+    "ResID": resIDs,
+    "Dice": dices,
+    "IoU": ious,
+} | d
 
 if perform_post:
     results['RawDice'] = dices_b4post
@@ -106,15 +105,18 @@ if perform_post:
     for adict in newmetrics_b4post:
         for key, value in adict.items():
             d["Raw"+key].append(value)
-    results = results | d
+    results |= d
 
 df = pd.DataFrame.from_dict(results)
 df.to_csv(result_file.replace('.hdf5', '_scores.csv'))
 
 print("\n-------------\nAnimal-wise Results\n-------------\n")
-for sub in subwise_dices.keys():
+for sub, value_ in subwise_dices.items():
     print(f"\nAnimal: {sub}------\n")
-    print(f"Median Dice: {np.round(np.median(subwise_dices[sub]),3)}±{np.round(np.var(subwise_dices[sub]),3)}")
+    print(
+        f"Median Dice: {np.round(np.median(value_), 3)}±{np.round(np.var(subwise_dices[sub]), 3)}"
+    )
+
     print(f"Mean Dice: {np.round(np.mean(subwise_dices[sub]),3)}±{np.round(np.std(subwise_dices[sub]),3)}")
 
     print(f"Median IoU: {np.round(np.median(subwise_ious[sub]),3)}±{np.round(np.var(subwise_ious[sub]),3)}")
@@ -129,5 +131,5 @@ print(f"Mean IoU: {np.round(np.mean(ious),3)}±{np.round(np.std(ious),3)}")
 
 if perform_post and save_post:
     with h5py.File(f"{result_file.replace('.hdf5', '_postprocessed.hdf5')}", 'w') as h:
-        for sub in post_pred.keys():
-            h.create_dataset(sub, data=post_pred[sub])
+        for sub, value__ in post_pred.items():
+            h.create_dataset(sub, data=value__)

@@ -55,17 +55,10 @@ TL_ct_ct = pd.read_csv(f"{root}/CT_CT.csv")
 TL_carm_carm = pd.read_csv(f"{root}/CArm_CArm.csv")
 TL_tst_tst = pd.read_csv(f"{root}/TST_TST.csv")
 
-BASE_ct_ct = []
-BASE_carm_carm = []
-BASE_tst_tst = []
-tags = []
-
-#ptCHAOS (direct, but with CHAOS PT)
-BASE_ct_ct.append(None)
-BASE_tst_tst.append(pd.read_csv(f"{root}/TSTptCHAOS_TST.csv"))
-BASE_carm_carm.append(pd.read_csv(f"{root}/CArmptCHAOS_CArm.csv"))
-tags.append("DirectWithCHAOS")
-
+BASE_ct_ct = [None]
+BASE_tst_tst = [pd.read_csv(f"{root}/TSTptCHAOS_TST.csv")]
+BASE_carm_carm = [pd.read_csv(f"{root}/CArmptCHAOS_CArm.csv")]
+tags = ["DirectWithCHAOS"]
 #reverse Turbolift
 flag = 0
 try:
@@ -125,7 +118,7 @@ except:
 TL_ct_ct['Experiment Type'] = "CT\n(Turbolift)"
 TL_carm_carm['Experiment Type'] = "CBCT\n(Turbolift)"
 TL_tst_tst['Experiment Type'] = "CBCT TST\n(Turbolift)"
-    
+
 for i in range(len(tags)):
     tag = tags[i]
     carm_base = BASE_carm_carm[i]

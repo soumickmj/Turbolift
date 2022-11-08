@@ -50,8 +50,7 @@ class AttnGatingBlock(torch.nn.Module):
 
         y = torch.mul(upsample_psi, x)
         result = self.conv4(y)
-        result_bn = self.bn1(result)
-        return result_bn
+        return self.bn1(result)
 
 class DeepSupAttentionUnet(torch.nn.Module):
     ''' Implementation of http://arxiv.org/abs/1810.07842

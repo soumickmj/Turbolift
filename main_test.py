@@ -3,6 +3,7 @@
 
 """
 
+
 import argparse
 import random
 import os
@@ -152,7 +153,7 @@ if __name__ == '__main__':
                         default=4,
                         help="Number of worker threads")
 
-            
+
 
     parser.add_argument("--im_log_freq",
                         type=int,
@@ -197,7 +198,7 @@ if __name__ == '__main__':
     os.makedirs(hparams.res_path, exist_ok=True)
 
     hparams.accumulate_gradbatch = hparams.effective_batch_size//hparams.batch_size
-    
+
     if hparams.resume:
         path2chk = pjoin(hparams.output_path, hparams.run_name)
         if hparams.load_best:
@@ -260,10 +261,9 @@ if __name__ == '__main__':
         trainer.fit(model)
         torch.cuda.empty_cache()  # to avoid memory errors
 
-    if args.test:
-        if args.load_best:
-            trainer.test(model=model, test_dataloaders=model.test_dataloader())
-            torch.cuda.empty_cache()  # to avoid memory errors
+    if args.test and args.load_best:
+        trainer.test(model=model, test_dataloaders=model.test_dataloader())
+        torch.cuda.empty_cache()  # to avoid memory errors
 
     if args.predict:
         print("Predict not implemented")

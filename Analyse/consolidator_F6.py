@@ -267,7 +267,7 @@ with open(f"{consolidated_output}/consolidations_F6.txt","w") as file_obj:
                 file_obj.write("\n----------------------------\n")
                 file_obj.write(f"\nTrain{train_k}_Test{test_k}\n")
                 file_obj.write("\n----------------------------\n")
-        
+
                 file_obj.write("\nMeanDice: "+ str(df["Dice"].mean().round(3)) + "±" + str(df["Dice"].std().round(3)))
                 file_obj.write("\nMedianDice: "+ str(df["Dice"].median().round(3)) + "±" + str(df["Dice"].var().round(3)))
                 file_obj.write("\nMeanIoU: "+ str(df["IoU"].mean().round(3)) + "±" + str(df["IoU"].std().round(3)))

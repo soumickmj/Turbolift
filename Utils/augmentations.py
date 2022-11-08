@@ -54,9 +54,9 @@ class RandomPixelTranslation(object):
     def _sample_translation(self):
         max_dx = self.translate[0]
         max_dy = self.translate[1]
-        translation = (np.round(np.random.uniform(-max_dx, max_dx)),
-                        np.round(np.random.uniform(-max_dy, max_dy)))
-        return translation
+        return np.round(np.random.uniform(-max_dx, max_dx)), np.round(
+            np.random.uniform(-max_dy, max_dy)
+        )
 
     def __call__(self, sample):
         img, gt = sample
@@ -81,10 +81,10 @@ class RandomRotation(object):
             if degrees < 0:
                 raise ValueError("If degrees is a single number, it must be positive.")
             self.degrees = (-degrees, degrees)
-        else:
-            if len(degrees) != 2:
-                raise ValueError("If degrees is a sequence, it must be of len 2.")
+        elif len(degrees) == 2:
             self.degrees = degrees
+        else:
+            raise ValueError("If degrees is a sequence, it must be of len 2.")
 
     def _sample_angle(self):
         return np.random.rand()*(self.degrees[1]-self.degrees[0])+self.degrees[0]
@@ -115,14 +115,14 @@ class RandomAffine(object):
             if degrees < 0:
                 raise ValueError("If degrees is a single number, it must be positive.")
             self.degrees = (-degrees, degrees)
-        else:
-            if len(degrees) != 2:
-                raise ValueError("If degrees is a sequence, it must be of len 2.")
+        elif len(degrees) == 2:
             self.degrees = degrees
 
+        else:
+            raise ValueError("If degrees is a sequence, it must be of len 2.")
         if translate is not None:
             assert isinstance(translate, (tuple, list)) and len(translate) == 2, \
-                "translate should be a list or tuple and it must be of length 2."
+                    "translate should be a list or tuple and it must be of length 2."
             for t in translate:
                 if not (0.0 <= t <= 1.0):
                     raise ValueError("translation values should be between 0 and 1")
@@ -130,7 +130,7 @@ class RandomAffine(object):
 
         if scale is not None:
             assert isinstance(scale, (tuple, list)) and len(scale) == 2, \
-                "scale should be a list or tuple and it must be of length 2."
+                    "scale should be a list or tuple and it must be of length 2."
             for s in scale:
                 if s <= 0:
                     raise ValueError("scale values should be positive")
@@ -138,21 +138,13 @@ class RandomAffine(object):
 
         if flip is not None:
             assert isinstance(flip, (tuple, list)) and len(flip) == 2, \
-                "flip should be a list or tuple and it must be of length 2."
+                    "flip should be a list or tuple and it must be of length 2."
             assert isinstance(flip[0], bool) and isinstance(flip[1], bool), \
-                "flip elements must be booleans"
+                    "flip elements must be booleans"
         self.flips = flip
 
         if shear is not None:
             raise NotImplementedError()
-            if isinstance(shear, numbers.Number):
-                if shear < 0:
-                    raise ValueError("If shear is a single number, it must be positive.")
-                self.shears = (-shear, shear)
-            else:
-                assert isinstance(shear, (tuple, list)) and len(shear) == 2, \
-                    "shear should be a list or tuple and it must be of length 2."
-                self.shears = shear
         else:
             self.shears = shear
 
@@ -221,15 +213,13 @@ class RandomAffine(object):
 class MegaMix(object):
     def __init__(self, p=0.5):
         self.p = p
-        self.trans = []
-        self.trans.append(RandomVerticalFlip(0.8))
+        self.trans = [RandomVerticalFlip(0.8)]
         self.trans.append(RandomHorizontalFlip(0.8))
         self.trans.append(RandomPixelTranslation((32,32)))
         self.trans.append(RandomRotation(45))
 
     def __call__(self, sample):
-        if torch.rand(1) < self.p:
-            trans = random.choice(self.trans)
-            return trans(sample)
-        else:
+        if torch.rand(1) >= self.p:
             return sample
+        trans = random.choice(self.trans)
+        return trans(sample)

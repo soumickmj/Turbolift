@@ -6,28 +6,30 @@ from scipy.stats import mannwhitneyu
 #script 2 of 3 for analysis
 
 def getStatIndividual(tl, base, modal, tag):
-    stats = {
+    return {
         "Modality": modal,
         "Tag": tag,
         "Dice": mannwhitneyu(tl.Dice, base.Dice).pvalue,
         "IoU": mannwhitneyu(tl.IoU, base.IoU).pvalue,
         "Precision": mannwhitneyu(tl.Precision, base.Precision).pvalue,
         "Sensitivity": mannwhitneyu(tl.Sensitivity, base.Sensitivity).pvalue,
-        "Specificity": mannwhitneyu(tl.Specificity, base.Specificity).pvalue
+        "Specificity": mannwhitneyu(tl.Specificity, base.Specificity).pvalue,
     }
-    return stats
 
 def getStatIndividualRaw(res, modal, tag):
-    stats = {
+    return {
         "Modality": modal,
         "Tag": tag,
         "Dice": mannwhitneyu(res.Dice, res.RawDice).pvalue,
         "IoU": mannwhitneyu(res.IoU, res.RawIoU).pvalue,
         "Precision": mannwhitneyu(res.Precision, res.RawPrecision).pvalue,
-        "Sensitivity": mannwhitneyu(res.Sensitivity, res.RawSensitivity).pvalue,
-        "Specificity": mannwhitneyu(res.Specificity, res.RawSpecificity).pvalue
+        "Sensitivity": mannwhitneyu(
+            res.Sensitivity, res.RawSensitivity
+        ).pvalue,
+        "Specificity": mannwhitneyu(
+            res.Specificity, res.RawSpecificity
+        ).pvalue,
     }
-    return stats
     
 
 # root = "/mnt/public/soumick/CTPerf/Output/New1508/Consolidated" #6-Fold
@@ -38,17 +40,10 @@ TL_ct_ct = pd.read_csv(f"{root}/CT_CT.csv")
 TL_carm_carm = pd.read_csv(f"{root}/CArm_CArm.csv")
 TL_tst_tst = pd.read_csv(f"{root}/TST_TST.csv")
 
-BASE_ct_ct = []
-BASE_carm_carm = []
-BASE_tst_tst = []
-tags = []
-
-#ptCHAOS (direct, but with CHAOS PT)
-BASE_ct_ct.append(None)
-BASE_tst_tst.append(pd.read_csv(f"{root}/TSTptCHAOS_TST.csv"))
-BASE_carm_carm.append(pd.read_csv(f"{root}/CArmptCHAOS_CArm.csv"))
-tags.append("DirectWithCHAOS")
-
+BASE_ct_ct = [None]
+BASE_tst_tst = [pd.read_csv(f"{root}/TSTptCHAOS_TST.csv")]
+BASE_carm_carm = [pd.read_csv(f"{root}/CArmptCHAOS_CArm.csv")]
+tags = ["DirectWithCHAOS"]
 #reverse Turbolift
 flag = 0
 try:
@@ -105,8 +100,8 @@ except:
     if flag==2:
         BASE_carm_carm.pop()
 
-stat_collect = []      
-stat4raw_collect = []      
+stat_collect = []
+stat4raw_collect = []
 for i in range(len(tags)):
     tag = tags[i]
     carm_base = BASE_carm_carm[i]
@@ -117,14 +112,27 @@ for i in range(len(tags)):
         stat_collect.append(getStatIndividual(TL_ct_ct, ct_base, "CT", tag))
         stat4raw_collect.append(getStatIndividualRaw(ct_base, "CT", tag))
 
-    stat_collect.append(getStatIndividual(TL_carm_carm, carm_base, "CArm", tag))
-    stat_collect.append(getStatIndividual(TL_tst_tst, tst_base, "TST", tag))
-    stat4raw_collect.append(getStatIndividualRaw(carm_base, "CArm", tag))
-    stat4raw_collect.append(getStatIndividualRaw(tst_base, "TST", tag))
+    stat_collect.extend(
+        (
+            getStatIndividual(TL_carm_carm, carm_base, "CArm", tag),
+            getStatIndividual(TL_tst_tst, tst_base, "TST", tag),
+        )
+    )
 
-stat4raw_collect.append(getStatIndividualRaw(TL_ct_ct, "CT", "TL"))
-stat4raw_collect.append(getStatIndividualRaw(TL_carm_carm, "CArm", "TL"))
-stat4raw_collect.append(getStatIndividualRaw(TL_tst_tst, "TST", "TL"))
+    stat4raw_collect.extend(
+        (
+            getStatIndividualRaw(carm_base, "CArm", tag),
+            getStatIndividualRaw(tst_base, "TST", tag),
+        )
+    )
+
+stat4raw_collect.extend(
+    (
+        getStatIndividualRaw(TL_ct_ct, "CT", "TL"),
+        getStatIndividualRaw(TL_carm_carm, "CArm", "TL"),
+        getStatIndividualRaw(TL_tst_tst, "TST", "TL"),
+    )
+)
 
 pd.DataFrame.from_dict(stat_collect).to_csv(f"{root}/stats.csv")
 pd.DataFrame.from_dict(stat4raw_collect).to_csv(f"{root}/stats4raw.csv")
